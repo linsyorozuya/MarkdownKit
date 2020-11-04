@@ -10,4 +10,3 @@ import AppKit
 
 public typealias MarkdownFont = NSFont
 public typealias MarkdownColor = NSColor
-
