@@ -33,9 +33,15 @@ open class MarkdownItalic: MarkdownCommonElement {
            let stringFont = stringAttributes[.font] as? MarkdownFont
         {
             let fontSize: CGFloat = stringFont.fontDescriptor.pointSize
-            var italicFont: MarkdownFont = font.withSize(fontSize)
             let fontTraits = stringFont.fontDescriptor.symbolicTraits
+
+            /// Set matrix, fix italic no work in chinese
+            let matrix = CGAffineTransform(a: 1, b: 0, c: CGFloat(tanf(10 * .pi / 180)), d: 1, tx: 0, ty: 0)
+            let desc = UIFontDescriptor(name: "", matrix: matrix)
+            var italicFont: MarkdownFont = font.withSize(fontSize)
+            italicFont = UIFont(descriptor: desc, size: fontSize)
             italicFont = italicFont.withTraits(fontTraits, .traitItalic) ?? italicFont
+            
             attributedString.addAttributes([NSAttributedString.Key.font: italicFont], range: match.range(at: 3))
         }
 
