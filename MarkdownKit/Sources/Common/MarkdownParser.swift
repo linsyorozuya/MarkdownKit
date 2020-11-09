@@ -45,11 +45,12 @@ open class MarkdownParser {
     // MARK: Element Arrays
 
     fileprivate var escapingElements: [MarkdownElement]
-    fileprivate var defaultElements: [MarkdownElement] = []
     fileprivate var unescapingElements: [MarkdownElement]
   
+    open var lineStylesElements: [MarkdownElement] = []
+    open var characterStylesElements: [MarkdownElement] = []
     open var customElements: [MarkdownElement]
-  
+    
     // MARK: Basic Elements
 
     public let header: MarkdownHeader
@@ -146,7 +147,8 @@ open class MarkdownParser {
         attributedString.addAttribute(.foregroundColor, value: color,
                                       range: NSRange(location: 0, length: attributedString.length))
         var elements: [MarkdownElement] = escapingElements
-        elements.append(contentsOf: defaultElements)
+        elements.append(contentsOf: lineStylesElements)
+        elements.append(contentsOf: characterStylesElements)
         elements.append(contentsOf: customElements)
         elements.append(contentsOf: unescapingElements)
         elements.forEach { element in
@@ -156,18 +158,29 @@ open class MarkdownParser {
     }
 
     fileprivate func updateDefaultElements() {
-        let pairs: [(EnabledElements, MarkdownElement)] = [
-            (.automaticLink, automaticLink),
+        let lineStylesPairs: [(EnabledElements, MarkdownElement)] = [
             (.header, header),
             (.list, list),
             (.quote, quote),
+        ]
+        
+        let characterStylesPairs: [(EnabledElements, MarkdownElement)] = [
+            (.automaticLink, automaticLink),
             (.link, link),
             (.bold, bold),
             (.italic, italic),
             (.code, code),
             (.strikethrough, strikethrough),
         ]
-        defaultElements = pairs.filter { enabled, _ in
+        
+        lineStylesElements = lineStylesPairs.filter { enabled, _ in
+            enabledElements.contains(enabled)
+        }
+        .map { _, element in
+            element
+        }
+        
+        characterStylesElements = characterStylesPairs.filter { enabled, _ in
             enabledElements.contains(enabled)
         }
         .map { _, element in
